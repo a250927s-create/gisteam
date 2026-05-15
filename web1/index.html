@@ -9,7 +9,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Kosugi+Maru&display=swap" rel="stylesheet">
-        <style>
+    <style>
             /* 全要素に Poppins（英字） + Kosugi Maru（和文ポップ風）を強制適用します。
                注意: Poppins はラテン文字用のフォントで日本語グリフを含みません。
                そのため日本語は Kosugi Maru（丸ゴシックのポップ風）で表示されます。 */
@@ -26,6 +26,12 @@
                 background-repeat: no-repeat;
                 min-height: 100vh;
                 padding: 20px;
+                box-sizing: border-box;
+                /* 中央寄せのためにフレックスレイアウトを使用 */
+                display: flex;
+                align-items: center; /* 垂直中央 */
+                justify-content: center; /* 水平中央 */
+                flex-direction: column;
             }
 
             /* inline img を非表示にして背景化と競合しないようにする */
@@ -33,50 +39,68 @@
 
             #audio-section { margin-top:16px }
             #play-btn { padding:8px 12px }
+
+            /* 中央のコンテンツを包む白い半透明背景のボックス */
+            #content {
+                background: rgba(255,255,255,0.75); /* 半透明の白 */
+                padding: 28px 28px;
+                border-radius: 12px;
+                max-width: 900px;
+                width: calc(100% - 40px);
+                box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+                text-align: center; /* テキスト中央寄せ */
+                backdrop-filter: blur(4px); /* 背景のぼかし（対応ブラウザのみ） */
+                color: #111; /* 白背景上は濃い文字色に固定 */
+            }
+
+            /* コンテンツ内のリンクは濃い色にする（スクリプトで上書きされることがあるため明示） */
+            #content a { color: #0b63a5; }
         </style>
     </head>
 
     <body>
-        <!-- 自分の名前 -->
-        <h1>神戸宗一郎</h1>
+        <div id="content">
+            <!-- 自分の名前 -->
+            <h1>神戸宗一郎</h1>
 
-    <!-- 写真（背景化するため非表示） -->
-    <img class="hero-hidden" src="6436.jpg" width="300" alt="神戸宗一郎" />
+            <!-- 写真（背景化するため非表示） -->
+            <img class="hero-hidden" src="6436.jpg" width="300" alt="神戸宗一郎" />
 
-        <!-- オーディオ再生セクション -->
-        <section id="audio-section">
-            <h2>make beat</h2>
+            <!-- オーディオ再生セクション -->
+            <section id="audio-section">
+                <h2>make beat</h2>
 
-            <audio id="audio" controls preload="none">
-                <source src="アマルガム.mp3" type="audio/mpeg">
-                お使いのブラウザは audio 要素に対応していません。
-            </audio>
+                <audio id="audio" controls preload="none">
+                    <source src="アマルガム.mp3" type="audio/mpeg">
+                    お使いのブラウザは audio 要素に対応していません。
+                </audio>
 
-            <div style="margin-top:8px">
-                <button id="play-btn" style="display:none">音を再生</button>
-                <small id="note">ページ読み込み後に自動再生を試みます。ブロックされた場合はボタンで再生してください。</small>
-            </div>
-        </section>
+                <div style="margin-top:8px">
+                    <button id="play-btn" style="display:none">音を再生</button>
+                    <small id="note">ページ読み込み後に自動再生を試みます。ブロックされた場合はボタンで再生してください。</small>
+                </div>
+            </section>
 
-        <!-- 自己紹介 -->
-        <p>
-            神戸宗一郎a.k.a.TOBRA
-            松戸でラップやってます、サイファー大好きです
-            去年作成したhiphopマップを完成させたいと思っています
-        </p>
+            <!-- 自己紹介 -->
+            <p>
+                神戸宗一郎a.k.a.TOBRA
+                松戸でラップやってます、サイファー大好きです
+                去年作成したhiphopマップを完成させたいと思っています
+            </p>
 
-        <!-- リンク -->
-        <h2>My Favorite Websites / Maps</h2>
-        <ul>
-            <li>
-                気になるWebマップ：
-                <a href="https://artist-map.kgetheshadowmen.com" target="_blank" rel="noopener">hiphop map</a>
-            </li>
-            <li>
-                好きなWebサイト：
-                <a href="https://notfound404.stores.jp" target="_blank" rel="noopener">notfound</a>
-            </li>
-        </ul>
+            <!-- リンク -->
+            <h2>My Favorite Websites / Maps</h2>
+            <ul>
+                <li>
+                    気になるWebマップ：
+                    <a href="https://artist-map.kgetheshadowmen.com" target="_blank" rel="noopener">hiphop map</a>
+                </li>
+                <li>
+                    好きなWebサイト：
+                    <a href="https://notfound404.stores.jp" target="_blank" rel="noopener">notfound</a>
+                </li>
+            </ul>
+        </div>
 
         <script>
             (function(){
