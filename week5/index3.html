@@ -1,55 +1,126 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="ja">
 <head>
-	<!-- 文字エンコーディングをUTF-8に設定（日本語などの文字化けを防ぐ） -->
-	<meta charset="utf-8">
-
-	<!-- ブラウザのタブに表示されるページタイトル -->
-	<title>My First Web Map</title>
-
-	<!-- MapLibre GLのスタイルシート（地図の見た目を定義） -->
-	<link href="https://unpkg.com/maplibre-gl@5.3.0/dist/maplibre-gl.css" rel="stylesheet">
-
-	<!-- 独自のスタイルシート（地図のサイズなどをカスタマイズ） -->
-	<link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>思い出マップ（復旧版）</title>
+    <link href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+    <div id="map"></div>
 
-	<!-- 地図を表示するための空のコンテナ（id="map"で識別） -->
-	<div id="map"></div>
+    <!-- アバターバー -->
+    <div id="avatar-bar">
+        <button class="avatar" data-person="yohey" data-color="#FF6B6B"><span class="icon">Y</span><span class="name">yohey</span></button>
+        <button class="avatar" data-person="soichi" data-color="#4D96FF"><span class="icon">S</span><span class="name">soichi</span></button>
+        <button class="avatar" data-person="kai" data-color="#FFD93D"><span class="icon">K</span><span class="name">kai</span></button>
+        <button class="avatar" data-person="tomoya" data-color="#6BCB77"><span class="icon">T</span><span class="name">tomoya</span></button>
+    </div>
 
-	<!-- MapLibre GLのJavaScriptライブラリを読み込む -->
-	<script src="https://unpkg.com/maplibre-gl@5.3.0/dist/maplibre-gl.js"></script>
+    <script>
+        // 初期地図
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://demotiles.maplibre.org/style.json',
+            center: [139.7671, 35.6812],
+            zoom: 4
+        });
+        map.addControl(new maplibregl.NavigationControl());
 
-	<script>
-		// ===== 地図の初期化 =====
-		// 新しい地図オブジェクトを作成
-		const map = new maplibregl.Map({
-			container: 'map',  // 地図を表示する要素のID
-			style: 'https://demotiles.maplibre.org/style.json',  // 地図のデザイン（背景地図）
-			center: [139.7671, 35.6812],  // 初期表示の中心座標 [経度, 緯度]（東京駅）
-			zoom: 4  // 初期ズームレベル（数字が大きいほど拡大）
-		});
+        // 思い出データ
+        const memories = [
+            { person: 'yohey', title: 'Tokyo Station', coords: [139.7671, 35.6812], desc: '東京駅の思い出', image: '' },
+            { person: 'soichi', title: 'Shibuya', coords: [139.702, 35.658], desc: '渋谷での出来事', image: 'S__18784260_0.jpg' },
+            { person: 'kai', title: 'Osaka', coords: [135.5022, 34.6937], desc: '大阪の思い出', image: 'S__18784260_0.jpg' },
+            { person: 'tomoya', title: 'State University of New York at Fredonia', coords: [42.4495, -79.3365], desc: '自然豊かでとても過ごしやすい大学でした。', image: 'S__18784260_0.jpg' },
+            { person: 'yohey', title: 'Mount Fuji', coords: [138.7274, 35.3606], desc: '富士山へ行った', image: 'S__18784261_0.jpg' },
+            { person: 'soichi', title: 'Kyoto', coords: [135.7681, 35.0116], desc: '京都の寺社', image: '' },
+            { person: 'tomoya', title: 'Niagara Falls', coords: [-79.0377,43.0962], desc: '水しぶきがとてもすごかった流石世界三大瀑布の一つだと感じた。', image: 'S__18784261_0.jpg' },
+        ];
 
-		// ===== ナビゲーションコントロールの追加 =====
-		// 地図の右上にズームボタンと回転ボタンを追加
-		map.addControl(new maplibregl.NavigationControl());
 
-		// ===== マーカーの追加 =====
-		// 地図上にピンを立てる
-		new maplibregl.Marker()
-			.setLngLat([139.7671, 35.6812])  // マーカーの位置 [経度, 緯度]（東京駅）
-			.setPopup(
-				// マーカーをクリックしたときに表示されるポップアップ
-				new maplibregl.Popup()
-					.setHTML("<h3>Tokyo Station</h3><p>Hello MapLibre!</p>")  // ポップアップの内容（HTML形式）
-			)
-			.addTo(map);  // 作成したマーカーを地図に追加
+        // avatar の色を読み取り、アイコンに適用
+        const avatarColors = {};
+        document.querySelectorAll('#avatar-bar .avatar').forEach(btn => {
+            const person = btn.dataset.person;
+            const color = btn.dataset.color || '#888';
+            avatarColors[person] = color;
+            const ic = btn.querySelector('.icon');
+            if (ic) ic.style.background = color;
+        });
 
-	</script>
+        // マーカー配列
+        const created = [];
 
+        function createMarker(memory) {
+            // 要素作成
+            const el = document.createElement('div');
+            el.className = 'memory-marker ' + memory.person;
+            el.title = memory.title + ' — ' + memory.person;
+
+            // SVGピン
+            const color = avatarColors[memory.person] || '#888';
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            svg.setAttribute('class', 'pin');
+            svg.innerHTML = '<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" />';
+            svg.querySelector('path').setAttribute('fill', color);
+            el.appendChild(svg);
+
+            // ポップアップの内容を作成（画像があれば表示）
+            let popupHtml = `<h3>${memory.title}</h3><p>${memory.desc}</p><small>${memory.person}</small>`;
+            if (memory.image) {
+                // 画像は同ディレクトリに配置されている前提で相対パスを使う
+                popupHtml += `<img src="${memory.image}" alt="${memory.title}" class="popup-image"/>`;
+            }
+
+            const marker = new maplibregl.Marker(el)
+                .setLngLat(memory.coords)
+                .setPopup(new maplibregl.Popup({ offset: 25 }).setHTML(popupHtml))
+                .addTo(map);
+
+            created.push({ marker, el, person: memory.person, onMap: true });
+        }
+
+        memories.forEach(createMarker);
+
+        function filterByPerson(person) {
+            created.forEach(item => {
+                const { marker, person: p } = item;
+                if (!person || p === person) {
+                    // 表示されるべきなら地図に追加
+                    if (!item.onMap) {
+                        marker.addTo(map);
+                        item.onMap = true;
+                    }
+                } else {
+                    // 非表示にする
+                    if (item.onMap) {
+                        marker.remove();
+                        item.onMap = false;
+                    }
+                }
+            });
+            document.querySelectorAll('#avatar-bar .avatar').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.person === person);
+            });
+        }
+
+        let currentFilter = null;
+        document.querySelectorAll('#avatar-bar .avatar').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const p = btn.dataset.person;
+                const newFilter = currentFilter === p ? null : p;
+                currentFilter = newFilter;
+                filterByPerson(newFilter);
+            });
+        });
+
+        // 初期表示は全員
+        filterByPerson(null);
+    </script>
 </body>
-
 </html>
+

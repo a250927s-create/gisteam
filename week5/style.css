@@ -12,3 +12,67 @@ html, body {
 	width: 100%;   /* 幅を画面全体（100%）に */
 	height: 100vh; /* 高さをビューポートの100%（画面全体）に */
 }
+
+/* ===== アバターバー（左上） ===== */
+#avatar-bar {
+	position: absolute;
+	top: 12px;
+	left: 12px;
+	z-index: 10;
+	display: flex;
+	gap: 6px;
+}
+
+.avatar {
+	display: flex;
+	align-items: center;
+	border: none;
+	background: rgba(255,255,255,0.9);
+	padding: 6px 8px;
+	border-radius: 8px;
+	cursor: pointer;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.avatar .icon {
+	display: inline-flex;
+	width: 28px;
+	height: 28px;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	color: #fff;
+	font-weight: 700;
+	margin-right: 8px;
+}
+
+.avatar .name {
+	font-size: 13px;
+	color: #222;
+}
+
+.avatar.active {
+	outline: 2px solid #2b8aee;
+}
+
+/* ===== マーカー（思い出） ===== */
+.memory-marker { display: inline-block; line-height: 0; }
+.memory-marker .pin {
+	display: block;
+	width: 18px;
+	height: 18px;
+}
+.memory-marker svg.pin { width: 20px; height: 20px; overflow: visible; transform: translateY(-2px); }
+.memory-marker svg.pin path { stroke: rgba(0,0,0,0.08); stroke-width: 0.2; }
+
+/* ピンの色は JS で設定されます */
+
+/* ポップアップ内画像 */
+.maplibregl-popup .popup-image, .popup-image {
+	max-width: 220px;
+	height: auto;
+	display: block;
+	margin-top: 8px;
+	border-radius: 6px;
+}
+
